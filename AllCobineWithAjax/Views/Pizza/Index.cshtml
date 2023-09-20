@@ -1,0 +1,157 @@
+﻿@model List<AllCobineWithAjax.Models.Pizza>
+
+
+
+<div class="container">
+    <div class="row">
+
+
+        <div class="col-6 border">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <td>PizzaId</td>
+                        <td>PizzaName</td>
+                        <td>PizzaPrice</td>
+                        <td>Action</td>
+                    </tr>
+                </thead>
+                <tbody id="Display">
+                </tbody>
+            </table>
+        </div>
+        <div class="col-6 border">
+            <form class="border" id="form">
+                <div>
+                    <input type="number" hidden id="pizzaId" />
+                </div>
+                <div>
+                    <input type="text" id="pizzaName" placeholder="Enter The PizzaName" />
+                </div>
+                <div>
+                    <input type="number" id="pizzaPrice" placeholder="Enter the PizzaPrice" />
+                </div>
+                <div>
+                    <input type="submit" class="btn-btn primary" value="submit" />
+                </div>
+            </form>
+            <button id="UpdateBtn" class="btn btn-primary btn-outline-primary ">Update</button>
+
+        </div>
+    </div>
+</div>
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script>
+    $(document).ready(function () {
+        Display();
+    })
+
+
+    function Display() {
+        $.ajax({
+            type: 'Get',
+            url: 'Pizza/Read',
+            dataType: 'json',
+            contentType: 'application/json;charset=utf-8;',
+
+            success: function (response) {
+                var obj = '';
+                $.each(response, function (index, item) {
+                    obj += '<tr>';
+                    obj += '<td>' + item.pizzaId + '</td>';
+                    obj += '<td>' + item.pizzaName + '</td>';
+                    obj += '<td>' + item.pizzaPrice + '</td>';
+                    obj += '<td> <a href="#" class="btn btn-primary align-content-between " onclick="GetById(' + item.pizzaId + ');" >Edit</a><a href="#" class="btn text-white  btn-danger" onclick="Delete(' + item.pizzaId + ');" >Delete</a> </td>';
+                    obj += '</tr>';
+                });
+                $("#Display").html(obj);
+            },
+            error: function () {
+                alert("Error1");
+            }
+
+
+        });
+    }
+
+
+
+    $("#form").submit(function (e) {
+        e.preventDefault();
+        var obj = {
+            PizzaName: $("#pizzaName").val(),
+            Pizzaprice: $("#pizzaPrice").val()
+        };
+        $.ajax({
+            url: 'Pizza/AddPizza',
+            type: 'Post',
+            data: obj,
+            success: function (response) {
+                Display();
+                console.log(response);
+
+            },
+            error: function () {
+                alert("Error 2");
+            }
+        });
+
+    });
+
+    function Delete(pizzaId) {
+        $.ajax({
+            url: 'Pizza/Delete?pizzaId=' + pizzaId,
+            type: 'post',
+            success: function (response) {
+                Display();
+                console.log(response);
+            }
+        });
+    }
+
+    function GetById(pizzaId) {
+        console.log(pizzaId);
+        $.ajax({
+            url: 'Pizza/GetById?pizzaId=' + pizzaId,
+            type: 'post',
+            success: function (response) {
+                $('#pizzaId').val(response.pizzaId);
+                $('#pizzaName').val(response.pizzaName);
+                $('#pizzaPrice').val(response.pizzaPrice);
+               
+
+            },
+            error: function () {
+                alert("Error");
+            }
+        });
+    }
+
+
+    $('#UpdateBtn').click(function (e) {
+        e.preventDefault();
+
+        var pizza = {
+            PizzaId: $('#pizzaId').val(),
+            PizzaName: $('#pizzaName').val(),
+            PizzaPrice: $('#pizzaPrice').val()
+
+        };
+        $.ajax({
+            url: 'Pizza/Edit',
+            type: 'post',
+            data: pizza,
+            success: function (response) {
+                Display();
+            },
+            error: function () {
+                alert("error");
+            }
+
+        });
+    })
+
+
+
+
+</script>

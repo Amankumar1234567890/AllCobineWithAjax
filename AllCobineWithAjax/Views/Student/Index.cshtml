@@ -1,0 +1,144 @@
+﻿@model List<AllCobineWithAjax.Models.Student>
+
+<div class="container">
+    <div class="row">
+
+
+        <div class="col-6 border">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <td>
+                            StudentId
+                        </td>
+                        <td>StudentName</td>
+                        <td>StudentClass</td>
+                        <td>Action</td>
+                    </tr>
+                </thead>
+                <tbody id="form">
+                </tbody>
+            </table>
+
+        </div>
+        <div class="col-6 border">
+            <form  class="border" id="idform">
+                <div>
+                    <input type="number" hidden id="studentId" />
+                </div>
+                <div>
+                     <input type="text" id="studentName" />
+                </div>
+                <div>
+                    <input type="number" id="studentClass" />
+                </div>
+                <div>
+                    <input type="submit" value="submit" />
+                </div>
+
+            </form>
+            <button id="updateBtn" class="btn btn-primary">Update</button>
+        </div>
+    </div>
+</div>
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        DisplayData();
+    })
+
+    function DisplayData() {
+        $.ajax({
+            url: '/Student/DisplayData',
+            type: 'Get',
+            dataType: 'json',
+            contentType: 'application/json;charset=utf-8;',
+            success: function (response) {
+                var obj = '';
+                $.each(response, function (index, item) {
+                    obj += '<tr>';
+                    obj += '<td>' + item.studentId + '</td>';
+                    obj += '<td>' + item.studentName + '</td>';
+                    obj += '<td>' + item.studentClass + '</td>';
+                    obj+='<td><a href="#" class="btn btn-primary" onclick="GetById('+item.studentId+')">Edit</a><a href="#" class="btn btn-danger" onclick="Delete('+item.studentId+')">Delete</a></td>'
+                    obj += '</tr>';
+
+
+                }),
+                    $('#form').html(obj);
+            },
+            error: function () {
+                alert("Error")
+            }
+        });
+    }
+
+    $('#idform').submit(function (e) {
+        debugger
+        e.preventDefault();
+        var obj = {
+            StudentName: $('#studentName').val(),
+            StudentClass: $('#studentClass').val()
+        };
+        $.ajax({
+            url: 'Student/InsertData',
+            type: 'Post',
+            data: obj,
+            success: function (response) {
+                console.log("success");
+                DisplayData();
+            },
+            error: function () {
+                alert("Error");
+            }
+
+        });
+    });
+
+    function Delete(studentId) {
+        $.ajax({
+            url: 'Student/Delete?studentId='+studentId,
+            type: 'post',
+            success: function (response) {
+                DisplayData();
+                console.log(response);
+            }
+        });
+
+        
+    }
+
+    function GetById(studentId) {
+        $.ajax({
+            url: 'Student/getById?studentId=' + studentId,
+            type: 'post',
+            success: function (response) {
+                $('#studentId').val(response.studentId);
+                $('#studentName').val(response.studentName);
+                $('#studentClass').val(response.studentClass);
+            },
+        });
+    }
+
+    $('#updateBtn').click(function (e) {
+        e.preventDefault();
+        var obj = {
+            StudentId: $('#studentId').val(),
+            StudentName: $('#studentName').val(),
+            StudentClass: $('#studentClass').val()
+        };
+        $.ajax({
+            url: 'Student/UpdateData',
+            type: 'post',
+            data: obj,
+            success: function (response) {
+                DisplayData();
+                console.log(response);
+            }
+        });
+
+
+    });
+
+</script>

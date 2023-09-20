@@ -1,0 +1,165 @@
+﻿@model List<AllCobineWithAjax.Models.Movie>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-6 border">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <td>
+                                MovieId
+                            </td>
+                            <td>MovieName</td>
+                            <td>MovieBudget</td>
+                            <td>Action</td>
+                        </tr>
+
+                    </thead>
+                    <tbody id="display">
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <form id="form">
+                    <div>
+                        <input hidden type="number" id="movieId" />
+                    </div>
+                    <div>
+                        <input  type="text" id="movieName" />
+                    </div>
+                    <div>
+                        <input  type="number" id="movieBudget" />
+                    </div>
+                    <div>
+                        <input  type="submit" value="submit" class="btn btn-primary" />
+                    </div>
+
+                </form>
+                <button id="updatebtn" value="update" class="btn btn-danger">Update</button>
+            </div>
+        </div>
+
+
+    </div>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+
+
+
+    <script>
+        $(document).ready(function() {
+            Display();
+        })
+     
+        function Display() {
+            $.ajax({
+                type: 'Get',
+                url: 'Movie/Display',
+                dataType: 'json',
+                contentType: 'application/json;charset=utf-8;',
+
+                success: function (response) {
+                 
+                    var obj = '';
+                    $.each(response, function (index, item) {
+                        obj += '<tr>';
+                        obj += '<td>' + item.movieId + '</td>';
+                        obj += '<td>' + item.movieName + '</td>';
+                        obj += '<td>' + item.movieBudget + '</td>';
+                        obj += '<td> <a href="#" class="btn btn-primary align-content-between " onclick="GetById(' + item.movieId + ');" >Edit</a><a href="#" class="btn text-white  btn-danger" onclick="Delete(' + item.movieId + ');" >Delete</a> </td>';
+                        obj += '</tr>';
+                    });
+                    $("#display").html(obj);
+                },
+                error: function () {
+                    alert("Error1");
+                }
+
+
+            });
+        }
+
+        $('#form').submit(function (e) {
+            e.preventDefault();
+
+            var obj = {
+                MovieName: $('#movieName').val(),
+                movieBudget: $('#movieBudget').val()
+            };
+            $.ajax({
+                type: 'post',
+                url: 'Movie/InsertData',
+                data: obj,
+                success: function (response) {
+                   
+                    Display();
+                }
+            });
+
+        });
+
+        function Delete(movieId) {
+            $.ajax({
+                type: 'post',
+                url: 'Movie/Delete?movieId=' + movieId,
+                success: function () {
+                   
+                    Display();
+                }
+
+            });
+        }
+
+        function GetById(movieId) {
+            $.ajax({
+                type: 'post',
+                url: 'Movie/GetById?movieId=' + movieId,
+                success: function (response) {
+                    $('#movieId').val(response.movieId);
+                    $('#movieName').val(response.movieName);
+                    $('#movieBudget').val(response.movieBudget);
+
+                }
+
+            });
+        }
+
+        $('#updatebtn').click(function (e) {
+            debugger
+            e.preventDefault();
+            var obj = {
+                MovieId: $('#movieId').val(),
+                MovieName: $('#movieName').val(),
+                MovieBudget:$('#movieBudget').val()
+
+            };
+            $.ajax({
+                type: 'post',
+                url: 'Movie/Edit',
+                data: obj,
+                success: function (response) {
+                    console.log(response);
+                    Display();
+                }
+
+            });
+        });
+
+
+        
+        
+
+
+
+               
+        
+
+
+
+
+
+
+
+
+    </script>
